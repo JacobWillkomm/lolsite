@@ -1,9 +1,8 @@
 from rest_framework import serializers
 from .models import (
     Match, Participant, Stats,
-    Timeline, Team, Ban,
+    Team, Ban,
     AdvancedTimeline, Frame, ParticipantFrame,
-    Event, AssistingParticipants,
 )
 from match import tasks as mt
 
@@ -110,12 +109,6 @@ class StatsSerializer(serializers.ModelSerializer):
         return self.perk_substyles.get(obj.perk_sub_style, '')
 
 
-class TimelineSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Timeline
-        fields = "__all__"
-
-
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
@@ -130,10 +123,8 @@ class TeamSerializer(serializers.ModelSerializer):
             'first_rift_herald',
             'first_tower',
             'inhibitor_kills',
-            'rift_herald_kills',
             'tower_kills',
             'win',
-            'win_str',
         ]
 
 
@@ -145,10 +136,9 @@ class BanSerializer(serializers.ModelSerializer):
 
 class FullParticipantSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
-    timelines = TimelineSerializer(many=True, read_only=True)
     champion = serializers.SerializerMethodField()
-    spell_1_image = serializers.SerializerMethodField()
-    spell_2_image = serializers.SerializerMethodField()
+    summoner_1_image = serializers.SerializerMethodField()
+    summoner_2_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Participant
@@ -181,11 +171,11 @@ class FullParticipantSerializer(serializers.ModelSerializer):
     def get_stats(self, obj):
         return StatsSerializer(obj.stats, extra=self.extra).data
 
-    def get_spell_1_image(self, obj):
-        return self.spell_images.get(obj.spell_1_id, '')
+    def get_summoner_1_image(self, obj):
+        return self.spell_images.get(obj.summoner_1_id, '')
 
-    def get_spell_2_image(self, obj):
-        return self.spell_images.get(obj.spell_2_id, '')
+    def get_summoner_2_image(self, obj):
+        return self.spell_images.get(obj.summoner_2_id, '')
 
 
 class FullTeamSerializer(serializers.ModelSerializer):
@@ -208,7 +198,6 @@ class FullMatchSerializer(serializers.ModelSerializer):
         if isinstance(instance, QuerySet):
             instance = instance.prefetch_related(
                 'participants', 'teams', 'participants__stats',
-                'participants__timelines',
             )
         return super().__new__(cls, instance, *args, **kwargs)
 
@@ -245,28 +234,8 @@ class ParticipantFrameSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class AssistingParticipantsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AssistingParticipants
-        fields = "__all__"
-
-
-class EventSerializer(serializers.ModelSerializer):
-    assistingparticipants = AssistingParticipantsSerializer(many=True)
-
-    class Meta:
-        model = Event
-        fields = "__all__"
-
-    def __new__(cls, instance=None, *args, **kwargs):
-        if isinstance(instance, QuerySet):
-            instance = instance.prefetch_related('assistingparticipants')
-        return super().__new__(cls, instance, *args, **kwargs)
-
-
 class FrameSerializer(serializers.ModelSerializer):
     participantframes = ParticipantFrameSerializer(many=True)
-    events = EventSerializer(many=True)
 
     class Meta:
         model = Frame
@@ -275,7 +244,7 @@ class FrameSerializer(serializers.ModelSerializer):
     def __new__(cls, instance=None, *args, **kwargs):
         if isinstance(instance, QuerySet):
             instance = instance.prefetch_related(
-                "participantframes", "events", "events__assistingparticipants"
+                "participantframes",
             ).order_by('timestamp')
         return super().__new__(cls, instance, *args, **kwargs)
 
@@ -379,8 +348,8 @@ class BasicStatsSerializer(serializers.ModelSerializer):
 
 class BasicParticipantSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
-    spell_1_image = serializers.SerializerMethodField()
-    spell_2_image = serializers.SerializerMethodField()
+    summoner_1_image = serializers.SerializerMethodField()
+    summoner_2_image = serializers.SerializerMethodField()
     champion = serializers.SerializerMethodField()
 
     class Meta:
@@ -388,16 +357,15 @@ class BasicParticipantSerializer(serializers.ModelSerializer):
         fields = [
             "_id",
             "summoner_name",
-            "current_account_id",
-            "account_id",
+            "puuid",
             "summoner_id",
             "lane",
             "role",
             "team_id",
-            "spell_1_id",
-            "spell_1_image",
-            "spell_2_id",
-            "spell_2_image",
+            "summoner_1_id",
+            "summoner_1_image",
+            "summoner_2_id",
+            "summoner_2_image",
             "champion",
             "stats",
         ]
@@ -412,11 +380,11 @@ class BasicParticipantSerializer(serializers.ModelSerializer):
     def get_stats(self, obj):
         return BasicStatsSerializer(obj.stats, extra=self.extra).data
 
-    def get_spell_1_image(self, obj):
-        return self.spell_images.get(obj.spell_1_id, '')
+    def get_summoner_1_image(self, obj):
+        return self.spell_images.get(obj.summoner_1_id, '')
 
-    def get_spell_2_image(self, obj):
-        return self.spell_images.get(obj.spell_2_id, '')
+    def get_summoner_2_image(self, obj):
+        return self.spell_images.get(obj.summoner_2_id, '')
 
     def get_champion(self, obj):
         ret = {}

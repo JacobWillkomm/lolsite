@@ -31,16 +31,15 @@ export type BasicStatsType= t.TypeOf<typeof BasicStats>
 export const BasicParticipant = t.type({
     _id: t.number,
     summoner_name: t.string,
-    current_account_id: t.string,
-    account_id: t.string,
+    puuid: t.string,
     summoner_id: t.string,
     lane: t.string,
     role: t.string,
     team_id: t.number,
-    spell_1_id: t.number,
-    spell_1_image: t.string,
-    spell_2_id: t.number,
-    spell_2_image: t.string,
+    summoner_1_id: t.number,
+    summoner_1_image: t.string,
+    summoner_2_id: t.number,
+    summoner_2_image: t.string,
     champion: BasicChampionWithImage,
     stats: BasicStats,
 })
@@ -60,7 +59,6 @@ export const Team = t.type({
     rift_herald_kills: t.number,
     tower_kills: t.number,
     win: t.boolean,
-    win_str: t.string,
 })
 export type TeamType = t.TypeOf<typeof Team>
 
@@ -81,7 +79,6 @@ export const Stats = t.type({
     participant: t.number,
     assists: t.number,
     champ_level: t.number,
-    combat_player_score: t.number,
     damage_dealt_to_objectives: t.number,
     damage_dealt_to_turrets: t.number,
     damage_self_mitigated: t.number,
@@ -115,7 +112,6 @@ export const Stats = t.type({
     neutral_minions_killed: t.number,
     neutral_minions_killed_enemy_jungle: t.number,
     neutral_minions_killed_team_jungle: t.number,
-    objective_player_score: t.number,
     penta_kills: t.number,
 
     perk_0: t.number,
@@ -154,17 +150,6 @@ export const Stats = t.type({
     physical_damage_dealt_to_champions: t.number,
     physical_damage_taken: t.number,
 
-    player_score_0: t.number,
-    player_score_1: t.number,
-    player_score_2: t.number,
-    player_score_3: t.number,
-    player_score_4: t.number,
-    player_score_5: t.number,
-    player_score_6: t.number,
-    player_score_7: t.number,
-    player_score_8: t.number,
-    player_score_9: t.number,
-
     quadra_kills: t.number,
     sight_wards_bought_in_game: t.number,
 
@@ -172,14 +157,19 @@ export const Stats = t.type({
     stat_perk_1: t.number,
     stat_perk_2: t.number,
 
+    spell_1_casts: t.number,
+    spell_2_casts: t.number,
+    spell_3_casts: t.number,
+    spell_4_casts: t.number,
+
     time_ccing_others: t.number,
     total_damage_dealt: t.number,
     total_damage_dealt_to_champions: t.number,
     total_damage_taken: t.number,
     total_heal: t.number,
+    total_heals_on_teammates: t.number,
+    total_damage_shielded_on_teammates: t.number,
     total_minions_killed: t.number,
-    total_player_score: t.number,
-    total_score_rank: t.number,
     total_time_crowd_control_dealt: t.number,
     total_units_healed: t.number,
     triple_kills: t.number,
@@ -192,6 +182,7 @@ export const Stats = t.type({
     vision_wards_bought_in_game: t.number,
     wards_killed: t.number,
     wards_placed: t.number,
+    detector_wards_placed: t.number,
     win: t.boolean,
 
     item_0_image: optional(ItemImage),
@@ -206,43 +197,30 @@ export const Stats = t.type({
 })
 export type StatsType= t.TypeOf<typeof Stats>
 
-export const Timeline = t.type({
-    id: t.number,
-    participant: t.number,
-    key: t.string,
-    value: t.number,
-    start: t.number,
-    end: t.number,
-})
-export type TimelineType= t.TypeOf<typeof Timeline>
-
 export const FullParticipant = t.type({
     id: t.number,
     match: t.number,
     _id: t.number,
-    account_id: t.string,
-    current_account_id: t.string,
-    current_platform_id: t.string,
-    platform_id: t.string,
-    match_history_uri: t.string,
     summoner_id: t.string,
     summoner_name: t.string,
     summoner_name_simplified: t.string,
     champion_id: t.number,
-    highest_achieved_season_tier: t.string,
-    spell_1_id: t.number,
-    spell_2_id: t.number,
+    summoner_1_id: t.number,
+    summoner_1_casts: t.number,
+    summoner_2_id: t.number,
+    summoner_2_casts: t.number,
     team_id: t.number,
     lane: t.string,
     role: t.string,
     rank: optional(t.string),
     tier: optional(t.string),
+    individual_position: optional(t.string),
+    team_position: optional(t.string),
     role_label: optional(t.number),
     stats: Stats,
-    timelines: t.array(Timeline),
     champion: optional(BasicChampionWithImage),
-    spell_1_image: t.string,
-    spell_2_image: t.string,
+    summoner_1_image: t.string,
+    summoner_2_image: t.string,
 })
 export type FullParticipantType = t.TypeOf<typeof FullParticipant>
 
@@ -260,8 +238,6 @@ export const FullTeam = t.union([
         id: t.number,
         bans: t.array(Ban),
         match: t.number,
-        dominion_victory_score: t.number,
-        vilemaw_kills: t.number,
     })
 ])
 export type FullTeamType = t.TypeOf<typeof FullTeam>
@@ -334,7 +310,6 @@ export const ParticipantFrame = t.type({
     frame: t.number,
     participant_id: t.number,
     current_gold: t.number,
-    dominion_score: optional(t.number),
     jungle_minions_killed: t.number,
     level: t.number,
     minions_killed: t.number,
