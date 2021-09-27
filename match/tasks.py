@@ -744,7 +744,7 @@ def get_frame_event_types():
             'events': [],
             'mapping': {
                 'killer_id': 'killerId',
-                'assisting_participant_ids': 'assistingParticipantsIds',
+                'assisting_participant_ids': 'assistingParticipantIds',
                 'killer_team_id': 'killerTeamId',
                 'monster_type': 'monsterType',
                 'monster_sub_type': 'monsterSubType',
@@ -756,7 +756,7 @@ def get_frame_event_types():
             'model': ChampionSpecialKillEvent,
             'events': [],
             'mapping': {
-                'assisting_participant_ids': 'assistingParticipantsIds',
+                'assisting_participant_ids': 'assistingParticipantIds',
                 'kill_type': 'killType',
                 'killer_id': 'killerId',
                 'multi_kill_length': 'multiKillLength',
@@ -768,7 +768,7 @@ def get_frame_event_types():
             'model': BuildingKillEvent,
             'events': [],
             'mapping': {
-                'assisting_participant_ids': 'assistingParticipantsIds',
+                'assisting_participant_ids': 'assistingParticipantIds',
                 'building_type': 'buildingType',
                 'killer_id': 'killerId',
                 'lane_type': 'laneType',
@@ -915,8 +915,6 @@ def import_advanced_timeline(match_id=None, overwrite=False):
                 pos = _event.get("position", {})
                 event_type = _event['type']
 
-                print()
-                print(_event)
                 for temp_event_type, val in events.items():
                     if temp_event_type == event_type:
                         kwargs = {}

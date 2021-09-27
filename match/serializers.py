@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from .models import (
-    Match, Participant, Stats,
-    Team, Ban,
+    Match, Participant, Stats, Team, Ban,
     AdvancedTimeline, Frame, ParticipantFrame,
 )
+from . import models
 from match import tasks as mt
 
 from data.serializers import (
@@ -234,31 +234,262 @@ class ParticipantFrameSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class WardKillEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.WardKillEvent
+        fields = [
+            'timestamp',
+            'killer_id',
+            'ward_type',
+        ]
+
+
+class WardPlacedEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.WardPlacedEvent
+        fields = [
+            'timestamp',
+            'creator_id',
+            'ward_type',
+        ]
+
+
+class LevelUpEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.LevelUpEvent
+        fields = [
+            'timestamp',
+            'level',
+            'participant_id',
+        ]
+
+
+class SkillLevelUpEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.SkillLevelUpEvent
+        fields = [
+            'timestamp',
+            'level_up_type',
+            'participant_id',
+            'skill_slot',
+        ]
+
+
+class ItemPurchasedEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ItemPurchasedEvent
+        fields = [
+            'timestamp',
+            'item_id',
+            'participant_id',
+        ]
+
+
+class ItemDestroyedEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ItemDestroyedEvent
+        fields = [
+            'timestamp',
+            'item_id',
+            'participant_id',
+        ]
+
+
+class ItemUndoEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ItemUndoEvent
+        fields = [
+            'timestamp',
+            'participant_id',
+            'before_id',
+            'after_id',
+            'gold_gain',
+        ]
+
+
+class TurretPlateDestroyedEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TurretPlateDestroyedEvent
+        fields = [
+            'timestamp',
+            'killer_id',
+            'lane_type',
+            'x',
+            'y',
+            'team_id',
+        ]
+
+
+class EliteMonsterKillEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EliteMonsterKillEvent
+        fields = [
+            'timestamp',
+            'killer_id',
+            'assisting_participant_ids',
+            'killer_team_id',
+            'monster_type',
+            'monster_sub_type',
+            'x',
+            'y',
+        ]
+
+
+class ChampionSpecialKillEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ChampionSpecialKillEvent
+        fields = [
+            'timestamp',
+            'assisting_participant_ids',
+            'kill_type',
+            'killer_id',
+            'multi_kill_length',
+            'x',
+            'y',
+        ]
+
+
+class BuildingKillEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.BuildingKillEvent
+        fields = [
+            'timestamp',
+            'assisting_participant_ids',
+            'building_type',
+            'killer_id',
+            'lane_type',
+            'team_id',
+            'tower_type',
+            'x',
+            'y',
+        ]
+
+
+class VictimDamageDealtSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.VictimDamageDealt
+        fields = [
+            'basic',
+            'magic_damage',
+            'name',
+            'participant_id',
+            'physical_damage',
+            'spell_name',
+            'spell_slot',
+            'true_damage',
+            'type',
+        ]
+
+
+class VictimDamageReceivedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.VictimDamageReceived
+        fields = [
+            'basic',
+            'magic_damage',
+            'name',
+            'participant_id',
+            'physical_damage',
+            'spell_name',
+            'spell_slot',
+            'true_damage',
+            'type',
+        ]
+
+
+class ChampionKillEventSerializer(serializers.ModelSerializer):
+    victimdamagedealt_set = VictimDamageDealtSerializer(many=True)
+    victimdamagereceived_set = VictimDamageReceivedSerializer(many=True)
+
+    class Meta:
+        model = models.ChampionKillEvent
+        fields = [
+            'timestamp',
+            'bounty',
+            'kill_streak_length',
+            'killer_id',
+            'victim_id',
+            'x',
+            'y',
+
+            'victimdamagereceived_set',
+            'victimdamagedealt_set',
+        ]
+
+
 class FrameSerializer(serializers.ModelSerializer):
     participantframes = ParticipantFrameSerializer(many=True)
+    wardkillevents = WardKillEventSerializer(many=True, source='wardkillevent_set')
+    wardplacedevents = WardPlacedEventSerializer(many=True, source='wardplacedevent_set')
+    levelupevents = LevelUpEventSerializer(many=True, source='levelupevent_set')
+    skilllevelupevents = SkillLevelUpEventSerializer(many=True, source='skilllevelupevent_set')
+    itempurchaseevents = ItemPurchasedEventSerializer(many=True, source='itempurchasedevent_set')
+    itemdestroyedevents = ItemDestroyedEventSerializer(many=True, source='itemdestroyedevent_set')
+    itemundoevents = ItemUndoEventSerializer(many=True, source='itemundoevent_set')
+    turretplatedestroyedevents = TurretPlateDestroyedEventSerializer(
+        many=True,
+        source='turretplatedestroyedevent_set',
+    )
+    elitemonsterkillevents = EliteMonsterKillEventSerializer(many=True, source='elitemonsterkillevent_set')
+    championspecialkillevents = ChampionSpecialKillEventSerializer(
+        many=True,
+        source='championspecialkillevent_set',
+    )
+    buildingkillevents = BuildingKillEventSerializer(many=True, source='buildingkillevent_set')
+    championkillevents = ChampionKillEventSerializer(many=True, source='championkillevent_set')
 
     class Meta:
         model = Frame
-        fields = "__all__"
+        fields = [
+            'timestamp',
+            'participantframes',
+            'wardkillevents',
+            'wardplacedevents',
+            'levelupevents',
+            'skilllevelupevents',
+            'itempurchaseevents',
+            'itemdestroyedevents',
+            'itemundoevents',
+            'turretplatedestroyedevents',
+            'elitemonsterkillevents',
+            'championspecialkillevents',
+            'buildingkillevents',
+            'championkillevents',
+        ]
 
     def __new__(cls, instance=None, *args, **kwargs):
         if isinstance(instance, QuerySet):
             instance = instance.prefetch_related(
                 "participantframes",
+                "wardkillevent_set",
+                "wardplacedevent_set",
+                "levelupevent_set",
+                "skilllevelupevent_set",
+                "itempurchasedevent_set",
+                "itemdestroyedevent_set",
+                "itemundoevent_set",
+                "turretplatedestroyedevent_set",
+                "elitemonsterkillevent_set",
+                "championspecialkillevent_set",
+                "buildingkillevent_set",
+                "gameendevent_set",
+                "championkillevent_set",
+                "championkillevent_set__victimdamagedealt_set",
+                "championkillevent_set__victimdamagereceived_set",
             ).order_by('timestamp')
         return super().__new__(cls, instance, *args, **kwargs)
 
 
 # ADVANCED TIMELINE
 class AdvancedTimelineSerializer(serializers.ModelSerializer):
-    frames = serializers.SerializerMethodField()
+    frames = FrameSerializer(many=True, read_only=True)
 
     class Meta:
         model = AdvancedTimeline
-        fields = "__all__"
-
-    def get_frames(self, obj):
-        return FrameSerializer(obj.frames.all(), many=True).data
+        fields = [
+            'frame_interval',
+            'frames',
+        ]
 
     def to_representation(self, instance):
         cache_key = f'advancedtimeline/{instance.id}'

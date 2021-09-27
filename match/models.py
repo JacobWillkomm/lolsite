@@ -694,7 +694,6 @@ class ParticipantFrame(models.Model):
     true_damage_done_to_champions = models.IntegerField(default=0, blank=True)
     true_damage_taken = models.IntegerField(default=0, blank=True)
 
-
     def __str__(self):
         return (
             f"ParticipantFrame(match={self.frame.timeline.match._id},"
