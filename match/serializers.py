@@ -295,6 +295,16 @@ class ItemDestroyedEventSerializer(serializers.ModelSerializer):
         ]
 
 
+class ItemSoldEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ItemSoldEvent
+        fields = [
+            'timestamp',
+            'item_id',
+            'participant_id',
+        ]
+
+
 class ItemUndoEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ItemUndoEvent
@@ -426,6 +436,7 @@ class FrameSerializer(serializers.ModelSerializer):
     itempurchaseevents = ItemPurchasedEventSerializer(many=True, source='itempurchasedevent_set')
     itemdestroyedevents = ItemDestroyedEventSerializer(many=True, source='itemdestroyedevent_set')
     itemundoevents = ItemUndoEventSerializer(many=True, source='itemundoevent_set')
+    itemsoldevents = ItemSoldEventSerializer(many=True, source='itemsoldevent_set')
     turretplatedestroyedevents = TurretPlateDestroyedEventSerializer(
         many=True,
         source='turretplatedestroyedevent_set',
@@ -449,6 +460,7 @@ class FrameSerializer(serializers.ModelSerializer):
             'skilllevelupevents',
             'itempurchaseevents',
             'itemdestroyedevents',
+            'itemsoldevents',
             'itemundoevents',
             'turretplatedestroyedevents',
             'elitemonsterkillevents',

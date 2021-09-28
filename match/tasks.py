@@ -13,7 +13,7 @@ from .models import Team, Ban
 from .models import AdvancedTimeline, Frame, ParticipantFrame
 from .models import WardKillEvent, WardPlacedEvent
 from .models import LevelUpEvent, SkillLevelUpEvent
-from .models import ItemPurchasedEvent, ItemDestroyedEvent
+from .models import ItemPurchasedEvent, ItemDestroyedEvent, ItemSoldEvent
 from .models import ItemUndoEvent, TurretPlateDestroyedEvent
 from .models import EliteMonsterKillEvent, ChampionSpecialKillEvent
 from .models import BuildingKillEvent, GameEndEvent
@@ -712,6 +712,14 @@ def get_frame_event_types():
         },
         'ITEM_DESTROYED': {
             'model': ItemDestroyedEvent,
+            'events': [],
+            'mapping': {
+                'item_id': 'itemId',
+                'participant_id': 'participantId',
+            },
+        },
+        'ITEM_SOLD': {
+            'model': ItemSoldEvent,
             'events': [],
             'mapping': {
                 'item_id': 'itemId',

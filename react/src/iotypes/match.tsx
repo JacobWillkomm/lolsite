@@ -210,6 +210,7 @@ export const FullParticipant = t.type({
   summoner_2_id: t.number,
   summoner_2_casts: t.number,
   team_id: t.number,
+  puuid: t.string,
   lane: t.string,
   role: t.string,
   rank: optional(t.string),
@@ -364,6 +365,13 @@ export const ItemDestroyedEvent = t.type({
 })
 export type ItemDestroyedEventType = t.TypeOf<typeof ItemDestroyedEvent>
 
+export const ItemSoldEvent = t.type({
+  timestamp: t.number,
+  item_id: t.number,
+  participant_id: t.number,
+})
+export type ItemSoldEventType = t.TypeOf<typeof ItemDestroyedEvent>
+
 export const ItemUndoEvent = t.type({
   timestamp: t.number,
   participant_id: t.number,
@@ -453,9 +461,11 @@ export const Frame = t.type({
   wardkillevents: t.array(WardKillEvent),
   wardplacedevents: t.array(WardPlacedEvent),
   levelupevents: t.array(LevelUpEvent),
+  skilllevelupevents: t.array(SkillLevelUpEvent),
   itempurchaseevents: t.array(ItemPurchasedEvent),
   itemdestroyedevents: t.array(ItemDestroyedEvent),
   itemundoevents: t.array(ItemUndoEvent),
+  itemsoldevents: t.array(ItemSoldEvent),
   turretplatedestroyedevents: t.array(TurretPlateDestroyedEvent),
   elitemonsterkillevents: t.array(EliteMonsterKillEvent),
   championspecialkillevents: t.array(ChampionSpecialKillEvent),

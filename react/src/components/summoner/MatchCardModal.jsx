@@ -25,7 +25,7 @@ import queryString from 'query-string'
 function MatchCardModal(props) {
   let store = props.store
   let match_id = props.route.match.params.match_id
-  let account_id = props.summoner.account_id
+  let puuid = props.summoner.puuid
 
   const [match, setMatch] = useState({})
   const [participants, setParticipants] = useState([])
@@ -256,7 +256,7 @@ function MatchCardModal(props) {
     return button_style
   }
 
-  const mypart = getMyPart(participants, account_id)
+  const mypart = getMyPart(participants, puuid)
   const header_style = {
     textAlign: 'center',
     textDecoration: 'underline',
@@ -403,7 +403,6 @@ function MatchCardModal(props) {
                   </div>
                   <div style={{...comp_style, alignSelf: 'baseline'}}>
                     <h5 style={header_style}>Build Order</h5>
-                    {/*
                     <BuildOrder
                       theme={store.state.theme}
                       timeline={timeline}
@@ -413,7 +412,6 @@ function MatchCardModal(props) {
                       my_part={mypart}
                       match_id={match._id}
                     />
-                    */}
                   </div>
                   <div style={{...comp_style, alignSelf: 'baseline'}}>
                     <h5 style={header_style}>Runes</h5>

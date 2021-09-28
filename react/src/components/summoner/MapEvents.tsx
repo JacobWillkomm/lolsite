@@ -260,6 +260,7 @@ function EventBubble({
   pos: [number, number]
   part_dict: Record<number, FullParticipantType>
 }) {
+  const [is_open, setIsOpen] = useState(false)
   const ev =
     buildingKillEvent || championKillEvent || turretPlateDestroyedEvent || eliteMonsterKillEvent
   if (!ev) {
@@ -280,7 +281,6 @@ function EventBubble({
     console.log(ev)
     return null
   }
-  const [is_open, setIsOpen] = useState(false)
   const size = 25
   const img_style = {
     height: 35,
@@ -306,13 +306,12 @@ function EventBubble({
   }
 
   const getKillAssists = (victimdamagereceived_set: VictimDamageType[]) => {
-    let out: Record<string, {name: string, damage: number}> = {}
+    let out: Record<string, {name: string; damage: number}> = {}
     for (const item of victimdamagereceived_set) {
       const addedDamage = item.physical_damage + item.magic_damage + item.true_damage
       if (out[item.name]) {
         out[item.name].damage += addedDamage
-      }
-      else {
+      } else {
         out[item.name] = {
           name: item.name,
           damage: addedDamage,
@@ -363,7 +362,11 @@ function EventBubble({
                       alt=""
                     />
                     {getKillAssists(championKillEvent.victimdamagereceived_set).map((item) => {
-                      return <div key={item.name}>{item.name}: {item.damage} dmg</div>
+                      return (
+                        <div key={item.name}>
+                          {item.name}: {item.damage} dmg
+                        </div>
+                      )
                     })}
                   </div>
                 )}

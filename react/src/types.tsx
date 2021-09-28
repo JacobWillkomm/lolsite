@@ -21,6 +21,10 @@ export type {
     EliteMonsterKillEventType,
     TurretPlateDestroyedEventType,
     VictimDamageType,
+    ItemPurchasedEventType,
+    ItemUndoEventType,
+    ItemDestroyedEventType,
+    ItemSoldEventType,
 } from './iotypes/match'
 
 // PLAYER
