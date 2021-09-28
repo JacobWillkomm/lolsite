@@ -25,6 +25,7 @@ export type {
     ItemUndoEventType,
     ItemDestroyedEventType,
     ItemSoldEventType,
+    SimpleMatchType,
 } from './iotypes/match'
 
 // PLAYER

@@ -3,6 +3,23 @@ import {ItemImage, BasicChampionWithImage} from './data'
 import {Position} from './player'
 import {optional} from './base'
 
+export const SimpleMatch = t.type({
+  _id: t.string,
+  game_creation: t.number,
+  game_duration: t.number,
+  game_mode: t.string,
+  game_type: t.string,
+  map_id: t.number,
+  platform_id: t.string,
+  season_id: optional(t.number),
+  game_version: t.string,
+  build: t.number,
+  major: optional(t.number),
+  minor: optional(t.number),
+  patch: optional(t.number),
+})
+export type SimpleMatchType = t.TypeOf<typeof SimpleMatch>
+
 export const BasicStats = t.type({
   kills: t.number,
   deaths: t.number,
@@ -326,6 +343,7 @@ export const WardKillEvent = t.type({
   timestamp: t.number,
   killer_id: t.number,
   ward_type: t.string,
+  _type: t.literal('WARD_KILL'),
 })
 export type WardKillEventType = t.TypeOf<typeof WardKillEvent>
 
@@ -333,6 +351,7 @@ export const WardPlacedEvent = t.type({
   timestamp: t.number,
   creator_id: t.number,
   ward_type: t.string,
+  _type: t.literal('WARD_PLACED'),
 })
 export type WardPlacedEventType = t.TypeOf<typeof WardPlacedEvent>
 
@@ -340,6 +359,7 @@ export const LevelUpEvent = t.type({
   timestamp: t.number,
   level: t.number,
   participant_id: t.number,
+  _type: t.literal('LEVEL_UP'),
 })
 export type LevelUpEventType = t.TypeOf<typeof LevelUpEvent>
 
@@ -348,6 +368,7 @@ export const SkillLevelUpEvent = t.type({
   level_up_type: t.string,
   participant_id: t.number,
   skill_slot: t.number,
+  _type: t.literal('SKILL_LEVEL_UP'),
 })
 export type SkillLevelUpEventType = t.TypeOf<typeof SkillLevelUpEvent>
 
@@ -355,6 +376,7 @@ export const ItemPurchasedEvent = t.type({
   timestamp: t.number,
   item_id: t.number,
   participant_id: t.number,
+  _type: t.literal('ITEM_PURCHASED'),
 })
 export type ItemPurchasedEventType = t.TypeOf<typeof ItemPurchasedEvent>
 
@@ -362,6 +384,7 @@ export const ItemDestroyedEvent = t.type({
   timestamp: t.number,
   item_id: t.number,
   participant_id: t.number,
+  _type: t.literal('ITEM_DESTROYED'),
 })
 export type ItemDestroyedEventType = t.TypeOf<typeof ItemDestroyedEvent>
 
@@ -369,8 +392,9 @@ export const ItemSoldEvent = t.type({
   timestamp: t.number,
   item_id: t.number,
   participant_id: t.number,
+  _type: t.literal('ITEM_SOLD'),
 })
-export type ItemSoldEventType = t.TypeOf<typeof ItemDestroyedEvent>
+export type ItemSoldEventType = t.TypeOf<typeof ItemSoldEvent>
 
 export const ItemUndoEvent = t.type({
   timestamp: t.number,
@@ -378,6 +402,7 @@ export const ItemUndoEvent = t.type({
   before_id: t.number,
   after_id: t.number,
   gold_gain: t.number,
+  _type: t.literal('ITEM_UNDO'),
 })
 export type ItemUndoEventType = t.TypeOf<typeof ItemUndoEvent>
 
@@ -388,6 +413,7 @@ export const TurretPlateDestroyedEvent = t.type({
   x: t.number,
   y: t.number,
   team_id: t.number,
+  _type: t.literal('TURRET_PLATE_DESTROYED'),
 })
 export type TurretPlateDestroyedEventType = t.TypeOf<typeof TurretPlateDestroyedEvent>
 
@@ -400,6 +426,7 @@ export const EliteMonsterKillEvent = t.type({
   monster_sub_type: optional(t.string),
   x: t.number,
   y: t.number,
+  _type: t.literal('ELITE_MONSTER_KILL'),
 })
 export type EliteMonsterKillEventType = t.TypeOf<typeof EliteMonsterKillEvent>
 
@@ -411,6 +438,7 @@ export const ChampionSpecialKillEvent = t.type({
   multi_kill_length: optional(t.number),
   x: t.number,
   y: t.number,
+  _type: t.literal('CHAMPION_SPECIAL_KILL'),
 })
 export type ChampionSpecialKillEventType = t.TypeOf<typeof ChampionSpecialKillEvent>
 
@@ -424,6 +452,7 @@ export const BuildingKillEvent = t.type({
   y: t.number,
   team_id: t.number,
   tower_type: optional(t.string),
+  _type: t.literal('BUILDING_KILL'),
 })
 export type BuildingKillEventType = t.TypeOf<typeof BuildingKillEvent>
 
@@ -451,6 +480,7 @@ export const ChampionKillEvent = t.type({
 
   victimdamagedealt_set: t.array(VictimDamage),
   victimdamagereceived_set: t.array(VictimDamage),
+  _type: t.literal('CHAMPION_KILL'),
 })
 export type ChampionKillEventType = t.TypeOf<typeof ChampionKillEvent>
 

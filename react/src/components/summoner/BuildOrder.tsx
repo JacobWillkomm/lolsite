@@ -12,11 +12,7 @@ import type {
   SummonerType,
 } from '../../types'
 
-type EventWithCount = (
-  | (ItemPurchasedEventType & {_type: 'ITEM_PURCHASED'})
-  | (ItemSoldEventType & {_type: 'ITEM_SOLD'})
-  | (ItemUndoEventType & {_type: 'ITEM_UNDO'})
-) & {
+type EventWithCount = (ItemPurchasedEventType | ItemSoldEventType | ItemUndoEventType) & {
   count?: number
 }
 
@@ -95,14 +91,6 @@ function BuildOrder(props: {
             }
             remove_items[id]--
           }
-        } else if (event._type === 'ITEM_SOLD') {
-          let id = event.item_id
-          if (remove_items[id] < 0) {
-            if (event.count !== undefined) {
-              event.count++
-            }
-          }
-          remove_items[id]++
         }
       }
 
@@ -157,15 +145,9 @@ function BuildOrder(props: {
       for (let i = 0; i < props.timeline.length; i++) {
         let frame = props.timeline[i]
         for (let event of [
-          ...frame.itempurchaseevents.map((item) => {
-            return {...item, _type: 'ITEM_PURCHASED'} as EventWithCount
-          }),
-          ...frame.itemundoevents.map((item) => {
-            return {...item, _type: 'ITEM_UNDO'} as EventWithCount
-          }),
-          ...frame.itemsoldevents.map((item) => {
-            return {...item, _type: 'ITEM_SOLD'} as EventWithCount
-          }),
+          ...(frame.itempurchaseevents as EventWithCount[]),
+          ...(frame.itemundoevents as EventWithCount[]),
+          ...(frame.itemsoldevents as EventWithCount[]),
         ]) {
           if (purchase[event.participant_id] === undefined) {
             purchase[event.participant_id] = {}
@@ -203,7 +185,11 @@ function BuildOrder(props: {
     for (let i in purchase_history[participant_selection]) {
       let group = purchase_history[participant_selection][i]
       for (let event of group) {
-        if (event._type != 'ITEM_UNDO' && items[event?.item_id] === undefined && typeof event?.item_id === 'number') {
+        if (
+          event._type !== 'ITEM_UNDO' &&
+          items[event?.item_id] === undefined &&
+          typeof event?.item_id === 'number'
+        ) {
           item_set.add(event.item_id)
         }
       }
@@ -287,7 +273,7 @@ function BuildOrder(props: {
               <span key={`${props.match_id}-${key}`}>
                 <div style={div_style}></div>
                 <div style={{display: 'inline-block'}} key={key}>
-                  {Object.values(group).filter((x) => x._type != 'ITEM_UNDO').length > 0 && (
+                  {Object.values(group).filter((x) => x._type !== 'ITEM_UNDO').length > 0 && (
                     <div style={{display: 'block', color: 'grey', width: 50}}>
                       {minutes}:{numeral(seconds).format('00')}
                     </div>
@@ -295,7 +281,7 @@ function BuildOrder(props: {
                   <div>
                     {Object.values(group).map((event, sub_key) => {
                       // let event = group[item_id]
-                      if (event._type != 'ITEM_UNDO' && items[event.item_id] !== undefined) {
+                      if (event._type !== 'ITEM_UNDO' && items[event.item_id] !== undefined) {
                         let image_style = {}
                         let action = 'purchased'
                         if (event._type === 'ITEM_SOLD') {

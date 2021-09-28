@@ -24,7 +24,22 @@ class MatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Match
-        fields = "__all__"
+        fields = [
+            '_id',
+            'game_creation',
+            'game_duration',
+            'game_mode',
+            'game_type',
+            'map_id',
+            'platform_id',
+            'season_id',
+            'game_version',
+            'build',
+            'major',
+            'minor',
+            'patch',
+            'url',
+        ]
 
     def __init__(self, *args, summoner_name=None, **kwargs):
         self.summoner_name = summoner_name
@@ -235,36 +250,47 @@ class ParticipantFrameSerializer(serializers.ModelSerializer):
 
 
 class WardKillEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='WARD_KILL')
+
     class Meta:
         model = models.WardKillEvent
         fields = [
             'timestamp',
             'killer_id',
             'ward_type',
+            '_type',
         ]
 
 
 class WardPlacedEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='WARD_PLACED')
+
     class Meta:
         model = models.WardPlacedEvent
         fields = [
             'timestamp',
             'creator_id',
             'ward_type',
+            '_type',
         ]
 
 
 class LevelUpEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='LEVEL_UP')
+
     class Meta:
         model = models.LevelUpEvent
         fields = [
             'timestamp',
             'level',
             'participant_id',
+            '_type',
         ]
 
 
 class SkillLevelUpEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='SKILL_LEVEL_UP')
+
     class Meta:
         model = models.SkillLevelUpEvent
         fields = [
@@ -272,40 +298,52 @@ class SkillLevelUpEventSerializer(serializers.ModelSerializer):
             'level_up_type',
             'participant_id',
             'skill_slot',
+            '_type',
         ]
 
 
 class ItemPurchasedEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='ITEM_PURCHASED')
+
     class Meta:
         model = models.ItemPurchasedEvent
         fields = [
             'timestamp',
             'item_id',
             'participant_id',
+            '_type',
         ]
 
 
 class ItemDestroyedEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='ITEM_DESTROYED')
+
     class Meta:
         model = models.ItemDestroyedEvent
         fields = [
             'timestamp',
             'item_id',
             'participant_id',
+            '_type',
         ]
 
 
 class ItemSoldEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='ITEM_SOLD')
+
     class Meta:
         model = models.ItemSoldEvent
         fields = [
             'timestamp',
             'item_id',
             'participant_id',
+            '_type',
         ]
 
 
 class ItemUndoEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='ITEM_UNDO')
+
     class Meta:
         model = models.ItemUndoEvent
         fields = [
@@ -314,10 +352,13 @@ class ItemUndoEventSerializer(serializers.ModelSerializer):
             'before_id',
             'after_id',
             'gold_gain',
+            '_type',
         ]
 
 
 class TurretPlateDestroyedEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='TURRET_PLATE_DESTROYED')
+
     class Meta:
         model = models.TurretPlateDestroyedEvent
         fields = [
@@ -327,10 +368,13 @@ class TurretPlateDestroyedEventSerializer(serializers.ModelSerializer):
             'x',
             'y',
             'team_id',
+            '_type',
         ]
 
 
 class EliteMonsterKillEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='ELITE_MONSTER_KILL')
+
     class Meta:
         model = models.EliteMonsterKillEvent
         fields = [
@@ -342,10 +386,13 @@ class EliteMonsterKillEventSerializer(serializers.ModelSerializer):
             'monster_sub_type',
             'x',
             'y',
+            '_type',
         ]
 
 
 class ChampionSpecialKillEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='CHAMPION_SPECIAL_KILL')
+
     class Meta:
         model = models.ChampionSpecialKillEvent
         fields = [
@@ -356,10 +403,13 @@ class ChampionSpecialKillEventSerializer(serializers.ModelSerializer):
             'multi_kill_length',
             'x',
             'y',
+            '_type',
         ]
 
 
 class BuildingKillEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='BUILDING_KILL')
+
     class Meta:
         model = models.BuildingKillEvent
         fields = [
@@ -372,6 +422,7 @@ class BuildingKillEventSerializer(serializers.ModelSerializer):
             'tower_type',
             'x',
             'y',
+            '_type',
         ]
 
 
@@ -408,6 +459,7 @@ class VictimDamageReceivedSerializer(serializers.ModelSerializer):
 
 
 class ChampionKillEventSerializer(serializers.ModelSerializer):
+    _type = serializers.ReadOnlyField(default='CHAMPION_KILL')
     victimdamagedealt_set = VictimDamageDealtSerializer(many=True)
     victimdamagereceived_set = VictimDamageReceivedSerializer(many=True)
 
@@ -424,6 +476,7 @@ class ChampionKillEventSerializer(serializers.ModelSerializer):
 
             'victimdamagereceived_set',
             'victimdamagedealt_set',
+            '_type',
         ]
 
 

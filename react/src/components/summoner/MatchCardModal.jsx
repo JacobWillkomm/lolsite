@@ -361,7 +361,6 @@ function MatchCardModal(props) {
                   )}
                   <div style={comp_style}>
                     <h5 style={header_style}>Game Timeline</h5>
-                    {/*
                     <Timeline
                       summoner={props.summoner}
                       match={match}
@@ -371,7 +370,6 @@ function MatchCardModal(props) {
                       store={props.store}
                       route={props.route}
                     />
-                    */}
                   </div>
                   <div style={comp_style}>
                     <div style={{marginLeft: 30, marginRight: 8}}>

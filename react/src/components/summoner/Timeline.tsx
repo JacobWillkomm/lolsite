@@ -5,34 +5,71 @@ import numeral from 'numeral'
 import {useEffect} from 'react'
 import {getMyPart} from '../../constants/general'
 
-function Timeline(props) {
-  const [timeline, setTimeline] = useState([])
+import type {
+  SummonerType,
+  SimpleMatchType,
+  FullParticipantType,
+  FrameType,
+  EliteMonsterKillEventType,
+} from '../../types'
+
+interface AugmentedEliteMonsterKillEventType extends EliteMonsterKillEventType {
+  frame_timestamp: number
+}
+interface AugmentedFrameType extends FrameType {
+  team100_adv: number
+  team200_adv: number
+  team100_perc_adv: number
+  team200_perc_adv: number
+  frame_timestamp: number
+  elitemonsterkillevents: AugmentedEliteMonsterKillEventType[]
+}
+
+function Timeline(props: {
+  summoner: SummonerType
+  match: SimpleMatchType
+  participants: FullParticipantType[]
+  timeline_index: number
+  timeline: FrameType[]
+  store: any
+  route: any
+  theme: string
+}) {
+  const [timeline, setTimeline] = useState<AugmentedFrameType[]>([])
   const participants = props.participants
   const match = props.match
   // const summoner = props.summoner
   const theme = props.store.state.theme
 
-  const [timeline_index, setTimelineIndex] = useState(null)
-  const [mypart, setMypart] = useState({})
+  const [timeline_index, setTimelineIndex] = useState<number | null>(null)
+  const [mypart, setMypart] = useState<FullParticipantType>()
   const [is_show_reference, setIsShowReference] = useState(false)
 
-  let big_events = getBigEvents(timeline_index)
+  let big_events = timeline_index !== null ? getBigEvents(timeline_index) : []
 
-  function getEvents(index) {
-    let events = []
-    if (index !== null) {
-      events = timeline[index].events
+  function getEvents(index: number | null) {
+    if (index === null) {
+      return []
     }
-    return events
+    const frame = timeline[index]
+    return [
+      ...frame.buildingkillevents,
+      ...frame.elitemonsterkillevents,
+      ...frame.championkillevents,
+      ...frame.turretplatedestroyedevents,
+    ]
   }
 
-  function getBigEvents(index) {
+  function getBigEvents(index: number) {
     let events = getEvents(index)
-    let include_events = new Set(['CHAMPION_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL'])
+    let include_events = new Set(['CHAMPION_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL', 'TURRET_PLATE_DESTROYED'])
     let big_events = []
     for (let event of events) {
       if (include_events.has(event._type)) {
         if (event.killer_id !== 0) {
+          big_events.push(event)
+        }
+        else if (event._type === 'TURRET_PLATE_DESTROYED') {
           big_events.push(event)
         }
       }
@@ -40,8 +77,13 @@ function Timeline(props) {
     return big_events
   }
 
-  function getMyTeamDataKey(style) {
-    let myteam = mypart.team_id
+  function getMyTeamDataKey(
+    style?: string,
+  ): 'team100_adv' | 'team200_adv' | 'team100_perc_adv' | 'team200_perc_adv' {
+    if (!mypart) {
+      return 'team100_adv'
+    }
+    let myteam = mypart.team_id as 100 | 200
     if (style === 'perc') {
       return `team${myteam}_perc_adv`
     }
@@ -69,7 +111,7 @@ function Timeline(props) {
       events = getBigEvents(i)
       for (let event of events) {
         if (event._type === 'ELITE_MONSTER_KILL') {
-          event.y_val = frame[getMyTeamDataKey()]
+          event.y = frame[getMyTeamDataKey()]
           event.frame_timestamp = frame.timestamp
           reference_lines.push(event)
         }
@@ -78,7 +120,7 @@ function Timeline(props) {
     return reference_lines
   }
 
-  function getEventTeam(event) {
+  function getEventTeam(event: any) {
     let team_id = null
     let part
     if (event._type === 'CHAMPION_KILL') {
@@ -96,12 +138,16 @@ function Timeline(props) {
       }
     } else if (event._type === 'ELITE_MONSTER_KILL') {
       part = getPart(event.killer_id)
-      team_id = part.team_id
+      if (part) {
+        team_id = part.team_id
+      }
+    } else if (event._type === 'TURRET_PLATE_DESTROYED') {
+      return event.team_id
     }
     return team_id
   }
 
-  function getPart(participant_id) {
+  function getPart(participant_id: number) {
     for (var part of participants) {
       if (part._id === participant_id) {
         return part
@@ -111,15 +157,18 @@ function Timeline(props) {
   }
 
   const sortTimelineEvents = useCallback((timeline) => {
+    if (!timeline?.events) {
+      return timeline
+    }
     for (let i = 0; i < timeline.length; i++) {
-      timeline[i].events = timeline[i].events.sort((a, b) => {
+      timeline[i].events = timeline[i].events.sort((a: any, b: any) => {
         return a.timestamp - b.timestamp
       })
     }
     return timeline
   }, [])
 
-  function combineTimelineCS(timeline) {
+  function combineTimelineCS(timeline: any) {
     for (let i = 0; i < timeline.length; i++) {
       for (let j = 0; j < timeline[i].participantframes.length; j++) {
         timeline[i].participantframes[j].cs =
@@ -191,6 +240,35 @@ function Timeline(props) {
     }
   }, [props.timeline_index])
 
+
+  const getMonsterLabel = (event: EliteMonsterKillEventType) => {
+    if (event.monster_type === 'DRAGON') {
+      if (event.monster_sub_type === 'EARTH_DRAGON') {
+        return <span>earth</span>
+      } else if (event.monster_sub_type === 'WATER_DRAGON') {
+        return <span>water</span>
+      } else if (event.monster_sub_type === 'FIRE_DRAGON') {
+        return <span>fire</span>
+      } else if (event.monster_sub_type === 'AIR_DRAGON') {
+        return <span>cloud</span>
+      } else if (event.monster_sub_type === 'ELDER_DRAGON') {
+        return <span>elder</span>
+      } else {
+        return <span>{event.monster_sub_type}</span>
+      }
+    } else if (event.monster_type === 'BARON_NASHOR') {
+      return <span>purple snek</span>
+    } else if (event.monster_type === 'RIFTHERALD') {
+      return <span>big scuttle</span>
+    } else {
+      return (
+          <span>
+          {event.monster_type} {event.monster_sub_type}
+          </span>
+          )
+    }
+  }
+
   let div_width = 600
   return (
     <div>
@@ -227,7 +305,6 @@ function Timeline(props) {
           />
 
           <YAxis
-            // domain={this.getDomain()}
             yAxisId="left"
             orientation="left"
             tickFormatter={(tick) => {
@@ -247,7 +324,10 @@ function Timeline(props) {
               }
             }}
             labelFormatter={(label) => {
-              let m = Math.round(label / 1000 / 60)
+              let m = '?'
+              if (typeof label == 'number') {
+                m = Math.round(label / 1000 / 60).toString()
+              }
               return `${m}m`
             }}
           />
@@ -268,7 +348,7 @@ function Timeline(props) {
 
           {getReferenceEvents().map((event) => {
             let color = '#3674ad'
-            if (getEventTeam(event) !== mypart.team_id) {
+            if (getEventTeam(event) !== mypart?.team_id) {
               color = '#cd565a'
             }
             let stroke_width = 1
@@ -326,13 +406,10 @@ function Timeline(props) {
           }
 
           let part1 = getPart(event.killer_id)
-          let part2 = getPart(event.victim_id)
+          let part2 = event._type === 'CHAMPION_KILL' ? getPart(event?.victim_id) : undefined
 
           let is_me = false
-          if (
-            (part1 !== null && part1._id === mypart._id) ||
-            (part2 !== null && part2._id === mypart._id)
-          ) {
+          if ((part1 && part1._id === mypart?._id) || (part2 && part2._id === mypart?._id)) {
             is_me = true
           }
           let is_me_style = {}
@@ -368,7 +445,7 @@ function Timeline(props) {
                         </span>
                       </span>{' '}
                       <span>
-                        <img style={{height: 15}} src={part2.champion.image?.file_30} alt="" />
+                        <img style={{height: 15}} src={part2?.champion.image?.file_30} alt="" />
                       </span>
                     </span>
                   )}
@@ -395,6 +472,22 @@ function Timeline(props) {
                     </span>
                   )}
 
+                  {event._type === 'TURRET_PLATE_DESTROYED' && (
+                    <span>
+                      <span>
+                        team
+                      </span>{' '}
+                      <span>
+                        <span style={{verticalAlign: 'text-bottom'}} className={`${theme} pill`}>
+                          broke
+                        </span>
+                      </span>{' '}
+                      <span style={{verticalAlign: 'text-bottom'}}>
+                        plating
+                      </span>
+                    </span>
+                  )}
+
                   {event._type === 'ELITE_MONSTER_KILL' && (
                     <span>
                       <span>
@@ -409,33 +502,7 @@ function Timeline(props) {
                         </span>
                       </span>{' '}
                       <span style={{verticalAlign: 'text-bottom'}}>
-                        {function (event) {
-                          if (event.monster_type === 'DRAGON') {
-                            if (event.monster_sub_type === 'EARTH_DRAGON') {
-                              return <span>earth</span>
-                            } else if (event.monster_sub_type === 'WATER_DRAGON') {
-                              return <span>water</span>
-                            } else if (event.monster_sub_type === 'FIRE_DRAGON') {
-                              return <span>fire</span>
-                            } else if (event.monster_sub_type === 'AIR_DRAGON') {
-                              return <span>cloud</span>
-                            } else if (event.monster_sub_type === 'ELDER_DRAGON') {
-                              return <span>elder</span>
-                            } else {
-                              return <span>{event.monster_sub_type}</span>
-                            }
-                          } else if (event.monster_type === 'BARON_NASHOR') {
-                            return <span>purple snek</span>
-                          } else if (event.monster_type === 'RIFTHERALD') {
-                            return <span>big scuttle</span>
-                          } else {
-                            return (
-                              <span>
-                                {event.monster_type} {event.monster_sub_type}
-                              </span>
-                            )
-                          }
-                        }.bind(this, event)()}
+                        {getMonsterLabel(event)}
                       </span>
                     </span>
                   )}
